@@ -52,7 +52,7 @@ OAS 1.0 is an open‑source Python engine that quantifies **oromotor asymmetry*
 5. **Score**  
 
    $$
-   \text{OAS}(t) \,=\, \frac{|d_R(t)-d_L(t)|}{\frac{1}{2}\bigl(d_R(t)+d_L(t)\bigr)}
+   \text{OAS}(t) \,=\, \frac{|d_R(t)-d_L(t)|}{\bigl(d_R(t)+d_L(t)\bigr)}
    $$
 6. **Aggregates**  Mean, SD, velocity & acceleration over the target utterance.
 
