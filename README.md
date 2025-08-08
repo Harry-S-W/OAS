@@ -157,7 +157,7 @@ Aggregate stats are written to `output/summary.csv`.
 
 ## License
 
-[Creative Commons Attribution 4.0 International](https://choosealicense.com/licenses/mit/)
+[Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/)
 
 ---
 
