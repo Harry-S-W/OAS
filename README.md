@@ -74,7 +74,7 @@ OAS 1.0 is an open‑source Python engine that quantifies **oromotor asymmetry*
 ### 2. Clone the repo
 
 ```bash
-git clone https://github.com/harrywstephen/OAS.git
+git clone https://github.com/Harry-S-W/OAS.git
 cd OAS
 ```
 
@@ -97,19 +97,10 @@ Follow the [official OpenFace build guide](https://github.com/TadasBaltrusaitis/
 ## Quick Start
 
 ```bash
-# 1 Convert video → landmarks (OpenFace)
-openface/FeatureExtraction \
-  -f raw_videos/speaker01.mp4 \
-  -out_dir landmarks/speaker01
-
 # 2 Run OAS engine
-python oas_cli.py \
-  --landmarks landmarks/speaker01 \
-  --config configs/default.yaml \
-  --out output/speaker01.csv
+python oas.py \
+  --mode init --file "test/folder/path.csv" --force
 
-# 3 Visualise (optional GUI)
-python -m oas.gui &
 ```
 
 ---
