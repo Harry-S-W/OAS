@@ -1,8 +1,8 @@
 # OAS 1.0 – Oromotor Asymmetry Score Engine
 
-> # DISCLAIMER: Code has not been uploaded. Expected upload date: August 20th, 2025, 11:59 PM BST
+> # DISCLAIMER: Current code is VERY early in production and is not the entirety of OAS
 
-> **Version:** 1.0  |  **Status:** Research prototype (still under development - see updates.md)
+> **Version:** 0.1.0  |  **Status:** Research prototype (still under development - see updates.md)
 
 ## Table of Contents
 
