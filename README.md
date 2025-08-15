@@ -98,7 +98,7 @@ Follow the [official OpenFace build guide](https://github.com/TadasBaltrusaitis/
 
 ```bash
 # 2 Run OAS engine
-python oas.py \
+python cli.py \
   --mode init --file "test/folder/path.csv" --force
 
 ```
