@@ -1,9 +1,32 @@
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Virtual environment
+venv/
+.env/
+
+# macOS metadata
+.DS_Store
+
+# IDE project files
+.idea/
+.vscode/
+
+# Output / generated data
+outputs/
+data/
+
+# Ignore specific files
 tyj.txt
 TODO.txt
 test.py
 main.py
 disregard.py
 outputs.py
-.venv/
-venv/
-data/
+
+# Logs
+*.log
