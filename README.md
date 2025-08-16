@@ -1,4 +1,4 @@
-# OAS 1.0 – Oromotor Asymmetry Score Engine
+# OAS 0.1.0 – Oromotor Asymmetry Score Engine
 
 > # DISCLAIMER: Current code is VERY early in production and is not the entirety of OAS
 
@@ -143,7 +143,7 @@ Aggregate stats are written to `output/summary.csv`.
 1. Fork → feature branch → pull request.
 2. Run `pytest` and `ruff` before pushing.
 3. For major changes, open an issue first to discuss scope.
-4. By contributing you agree to license your work under MIT.
+4. By contributing you agree to license your work under Creative Commons Attribution 4.0 International.
 ---
 
 ## License
