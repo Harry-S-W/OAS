@@ -50,7 +50,7 @@ OAS 1.0 is an open‑source Python engine that quantifies **oromotor asymmetry*
 1. **Video → Landmarks**  `OpenFace` extracts 68 facial landmarks per frame.
 2. **Pre‑cleaning**  Bad frames (low confidence) are removed.
 3. **Head‑pose Correction**  Landmarks are rotated so the inter‑pupil line is horizontal.
-4. **Left / Right Distances**  Compute Euclidean distance from nose‑tip → each mouth corner.
+4. **Left / Right Distances**  Compute Euclidean distance from a centralised anchor → each mouth corner.
 5. **Score**  
 
    $$
