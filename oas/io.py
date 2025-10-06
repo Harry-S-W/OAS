@@ -14,7 +14,7 @@ def initialize_csvs(output_dir: Path, *, force: bool=False) -> None:
     }
     existing = [x for x in paths.values() if x.exists()]
     if existing and not force:
-        print("⚠️ files exist and will be overwritten:"); [print("  -", x.name) for x in existing]
+        print("files exist and will be overwritten:"); [print("  -", x.name) for x in existing]
         if input("Continue? (y/N): ").strip().lower() != "y": print("Aborting."); return
     for x in existing:
         try: x.unlink()

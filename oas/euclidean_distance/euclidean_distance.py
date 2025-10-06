@@ -37,9 +37,14 @@ class EuclideanDistance:
         for c1, c2 in pairs:
             v1 = row[c1]
             v2 = row[c2]
-            d.append(np.sqrt((v1**2) + (v2**2)))
+            frame=row["frame"]
+            hyp = (np.hypot(v1, v2)) # basically d = sqrt(v1^2 + v2^2)
+            # print(f"FRAME: {frame} ----- {c1}: {v1}, {c2}: {v2}, d_{c1[-2:]}: {hyp}")
+
+            d.append(float(hyp))
 
         return d
+        #print(d)
 
     def euclideanDistanceCalc(self, row: int):
-        return self._extracting_data(row, self.landmarks.loc[row], LANDMARK_PAIRS)
+        return self._extracting_data(self.landmarks.iloc[row], LANDMARK_PAIRS)

@@ -50,7 +50,7 @@ def run(
         raise FileNotFoundError("output.csv missing/empty — run anchors first.")
 
     if centred_csv.exists() and centred_csv.stat().st_size > 0 and not force:
-        print("⚠️ centred_landmarks.csv has data. Append? (y/N): ", end="")
+        print("centred_landmarks.csv has data. Append? (y/N): ", end="")
         if input().strip().lower() != "y":
             print("Aborting."); return
 

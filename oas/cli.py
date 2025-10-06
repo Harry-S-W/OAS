@@ -5,10 +5,11 @@ from oas.io import initialize_csvs
 from oas.anchor.anchors import run as run_anchors
 from oas.centering.centering import run as run_centering
 from oas.curves.curves import export_curve_coefficients
+from oas.euclidean_distance.euclidean import run as run_euclidean_distance
 
 def main():
     p = argparse.ArgumentParser(description="OAS pipeline")
-    p.add_argument("-m","--mode", required=True, choices=["init","anchors","centering","curves"])
+    p.add_argument("-m","--mode", required=True, choices=["init","anchors","centering","curves", "euclidean"])
     p.add_argument("-f","--file", help="Input landmarks CSV (required for anchors & centering)")
     p.add_argument("-o","--output-dir", metavar="DIR", default="outputs")
     p.add_argument("--force", action="store_true")
@@ -57,6 +58,27 @@ def main():
         if not centred.exists() or centred.stat().st_size == 0:
             p.error("centred_landmarks.csv missing/empty — run --mode centering first.")
         export_curve_coefficients(centred, out_dir)
+
+    elif args.mode == "euclidean":
+        landmarks = out_dir / "pose_correction.csv"
+        if not landmarks.exists() or landmarks.stat().st_size == 0:
+            p.error(f"{landmarks} missing/empty - run --mode curves first")
+
+        run_euclidean_distance(args.file, out_dir, force=args.force, start=args.start, end=args.end)
+
+"""
+
+HOW TO USE CLI:
+
+When running locally from command terminal, use:
+
+> source .venv/bin/activate
+
+Then use: 
+
+> python oas.cli -m (mode) -f (input file) -o (output file) -f (force) -start (compute at row int) -end (finish at row int)
+
+"""
 
 if __name__ == "__main__":
     main()

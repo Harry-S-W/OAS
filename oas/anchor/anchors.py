@@ -26,7 +26,7 @@ def run(input_file: str, output_dir: Path, *, force: bool=False, start: int=0, e
 
     # prompt before appending unless --force
     if out_csv.exists() and out_csv.stat().st_size > 0 and not force:
-        print("⚠️ anchors.csv has data. Append? (y/N): ", end="")
+        print("Anchors.csv has data. Append? (y/N): ", end="")
         if input().strip().lower() != "y":
             print("Aborting."); return
 
