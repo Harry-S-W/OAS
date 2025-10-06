@@ -1,0 +1,57 @@
+# Python cache / build artefacts
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# -------------------------------
+# Virtual environments
+venv/
+.env/
+.venv/
+env/
+ENV/
+
+# -------------------------------
+# Data / local outputs
+data/
+outputs/
+test/
+
+# -------------------------------
+# IDE & OS files
+# PyCharm project settings
+.idea/
+# VS Code (in case you ever open it there)
+.vscode/
+# macOS / Windows
+.DS_Store
+Thumbs.db
+
+# -------------------------------
+# Logs / temporary files
+*.log
+*.tmp
+*.bak
+*.out
+
+# -------------------------------
+# Jupyter notebooks’ checkpoints
+.ipynb_checkpoints/
+
+# -------------------------------
+# Testing / coverage
+.coverage
+htmlcov/
+.tox/
+pytest_cache/
+
+# -------------------------------
+# Project-specific ignores
+TODO.txt
+test.py
+tyj.txt
+disregard.py
