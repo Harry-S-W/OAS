@@ -1,5 +1,8 @@
 # pose_correction.py
 """
+
+this file is horrendously messy I do apologize
+
 Centers landmarks and applies roll, yaw, and pitch correction
 
     Yaw and pitch are correcting 3D rotations on 2D landmarks so there is bound to be higher uncertainty
@@ -12,9 +15,8 @@ import pandas as pd
 import numpy as np
 import math
 from typing import Union
-from oas.config import LANDMARK_PAIRS  # <- package import
+from oas.config import LANDMARK_PAIRS
 
-# from aiohttp.hdrs import X_FORWARDED_PROTO  # <- unused; would force aiohttp as a dep
 
 
 class LandmarkCorrection:
@@ -157,6 +159,6 @@ class LandmarkCorrection:
                 + 0.0  # z term is zero
         )
 
-        # Z_pri = 0  # Z is ALWAYS = 0
+        # Z_pri = 0  # Z is ALWAYS = 0 - noted out cuz it is irrelevant but wrote it so I remember it
 
         return X_pri, Y_pri

@@ -1,47 +1,53 @@
-# oas/curves.py
 from pathlib import Path
 from typing import Optional, List, Dict, Tuple
-
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
 from oas.curves.curve_fitting import CurveFitting
-from oas.schemas import CURVE_COEFF_COLS
-from oas.io import ensure_dir, header_if_empty
+from oas.schemas import WIDE_CSV_STRUCTURE, cubic_curve_col_func, quadratic_curve_col_func
 
+def _pad_points(pts: np.ndarray, target: int) -> List[Tuple[Optional[float], Optional[float]]]:
+    out: List[Tuple[Optional[float], Optional[float]]] = []
+    for i in range(target):
+        if i < len(pts):
+            out.append((float(pts[i][0]), float(pts[i][1])))
+        else:
+            out.append((np.nan, np.nan))
+    return out
 
-def _nonempty(p: Path) -> bool:
-    return p.exists() and p.stat().st_size > 0
-
+def _prefix_from_region(region: str, deg: int) -> Optional[str]:
+    u = str(region).upper()
+    base = None
+    if "UR" in u: base = "UR"
+    elif "UL" in u: base = "UL"
+    elif "LR" in u: base = "LR"
+    elif "LL" in u: base = "LL"
+    else:
+        is_upper = ("UPPER" in u) or ("TOP" in u)
+        is_lower = ("LOWER" in u) or ("BOTTOM" in u)
+        is_right = ("RIGHT" in u)
+        is_left  = ("LEFT"  in u)
+        if is_upper and is_right: base = "UR"
+        elif is_upper and is_left: base = "UL"
+        elif is_lower and is_right: base = "LR"
+        elif is_lower and is_left: base = "LL"
+    if base is None:
+        return None
+    return base if deg == 3 else "I" + base
 
 def export_curve_coefficients(
     centred_csv: Path | str,
-    output_dir: Path,
+    output_file: Path,
     *,
     force: bool = False,
     start: int = 0,
     end: Optional[int] = None,
 ) -> None:
-    """
-    For each frame in centred_landmarks.csv, compute per-region polynomial coefficients
-    and append rows to curves.csv with columns from CURVE_COEFF_COLS.
-    """
-    output_dir = ensure_dir(Path(output_dir))
-    centred_csv = Path(centred_csv)
-    if not centred_csv.exists() or centred_csv.stat().st_size == 0:
-        raise FileNotFoundError("centred_landmarks.csv missing/empty — run centering first.")
-
-    out_csv = output_dir / "curves.csv"
-
-    # prompt if appending to existing non-empty unless forced
-    if _nonempty(out_csv) and not force:
-        print("⚠️ curves.csv already has data. Append? (y/N): ", end="")
-        if input().strip().lower() != "y":
-            print("Aborting."); return
-
-    # ensure header exactly once
-    header_if_empty(out_csv, CURVE_COEFF_COLS)
+    out_csv = output_file
+    out_csv.parent.mkdir(parents=True, exist_ok=True)
+    if not out_csv.exists() or out_csv.stat().st_size == 0:
+        pd.DataFrame(columns=WIDE_CSV_STRUCTURE).to_csv(out_csv, index=False)
 
     df = pd.read_csv(centred_csv)
     total = len(df)
@@ -53,61 +59,75 @@ def export_curve_coefficients(
         print("Nothing to do: start >= end.")
         return
 
-    records: List[Dict[str, object]] = []
+    allowed_cubic = list(cubic_curve_col_func())
+    allowed_quad  = list(quadratic_curve_col_func())
+
+    updates: List[Dict[str, object]] = []
 
     for row in tqdm(range(start, end), desc="Curves", unit="frame"):
         try:
-            cf = CurveFitting(df, row=row, t=0.0)  # t unused for coeff export
+            cf = CurveFitting(df, row=row, t=0.0)
+            rec: Dict[str, object] = {"frame": int(row)+1}
 
-            # keep iteration order stable with cf._REGIONS keys
             for region, (_, deg) in cf._REGIONS.items():
+                pref = _prefix_from_region(region, deg)
+                if pref is None:
+                    continue
+
                 cx, cy, pts = cf._coeffs_with_pts(region)
 
-                # pack function_type & degree
                 if deg == 3:
-                    ftype = "cubic"
-                    Ax, Bx, Cx, Dx = (float(cx[0]), float(cx[1]), float(cx[2]), float(cx[3]))
-                    Ay, By, Cy, Dy = (float(cy[0]), float(cy[1]), float(cy[2]), float(cy[3]))
-                    Pcoords = _pad_points(pts, target=4)  # P0,Q1,Q2,P3 (4 points)
-                elif deg == 2:
-                    ftype = "quadratic"
-                    # quadratic power-basis: 3 coeffs
-                    Ax, Bx, Cx, Dx = (float(cx[0]), float(cx[1]), float(cx[2]), None)
-                    Ay, By, Cy, Dy = (float(cy[0]), float(cy[1]), float(cy[2]), None)
-                    Pcoords = _pad_points(pts, target=4)  # P0,Q,P2,None -> still fill X3/Y3=None
-                else:
-                    raise ValueError(f"Unsupported degree {deg} for region {region}")
+                    Ax, Bx, Cx, Dx = float(cx[0]), float(cx[1]), float(cx[2]), float(cx[3])
+                    Ay, By, Cy, Dy = float(cy[0]), float(cy[1]), float(cy[2]), float(cy[3])
+                    P = _pad_points(pts, target=4)
+                    kv = {
+                        f"{pref}_Ax": Ax, f"{pref}_Bx": Bx, f"{pref}_Cx": Cx, f"{pref}_Dx": Dx,
+                        f"{pref}_Ay": Ay, f"{pref}_By": By, f"{pref}_Cy": Cy, f"{pref}_Dy": Dy,
+                        f"{pref}_X0": P[0][0], f"{pref}_Y0": P[0][1],
+                        f"{pref}_X1": P[1][0], f"{pref}_Y1": P[1][1],
+                        f"{pref}_X2": P[2][0], f"{pref}_Y2": P[2][1],
+                        f"{pref}_X3": P[3][0], f"{pref}_Y3": P[3][1],
+                    }
+                    for k, v in kv.items():
+                        if k in allowed_cubic:
+                            rec[k] = v
 
-                rec: Dict[str, object] = {
-                    "frame": int(row),
-                    "region": region,
-                    "degree": int(deg),
-                    "Ax": Ax, "Bx": Bx, "Cx": Cx, "Dx": Dx,
-                    "Ay": Ay, "By": By, "Cy": Cy, "Dy": Dy,
-                    # control/reference points used to fit
-                    "X0": Pcoords[0][0], "Y0": Pcoords[0][1],
-                    "X1": Pcoords[1][0], "Y1": Pcoords[1][1],
-                    "X2": Pcoords[2][0], "Y2": Pcoords[2][1],
-                    "X3": Pcoords[3][0], "Y3": Pcoords[3][1],
-                }
-                records.append(rec)
+                elif deg == 2:
+                    Ax, Bx, Cx = float(cx[0]), float(cx[1]), float(cx[2])
+                    Ay, By, Cy = float(cy[0]), float(cy[1]), float(cy[2])
+                    P = _pad_points(pts, target=3)
+                    kv = {
+                        f"{pref}_Ax": Ax, f"{pref}_Bx": Bx, f"{pref}_Cx": Cx, f"{pref}_Dx": np.nan,
+                        f"{pref}_Ay": Ay, f"{pref}_By": By, f"{pref}_Cy": Cy, f"{pref}_Dy": np.nan,
+                        f"{pref}_X0": P[0][0], f"{pref}_Y0": P[0][1],
+                        f"{pref}_X1": P[1][0], f"{pref}_Y1": P[1][1],
+                        f"{pref}_X2": P[2][0], f"{pref}_Y2": P[2][1],
+                    }
+                    for k, v in kv.items():
+                        if k in allowed_quad:
+                            rec[k] = v
+
+            updates.append(rec)
 
         except Exception as e:
             print(f"Error on row {row}: {e}")
 
-    if records:
-        pd.DataFrame.from_records(records, columns=CURVE_COEFF_COLS).to_csv(
-            out_csv, mode="a", header=False, index=False
-        )
-    print(f"Curve coefficients appended to {out_csv.resolve()}")
+    if updates:
+        wide = pd.read_csv(out_csv)
+        if "frame" not in wide.columns:
+            raise FileNotFoundError("Wide CSV missing 'frame' column.")
+        wide_idx = wide.set_index("frame")
+        upd = pd.DataFrame(updates).set_index("frame")
 
+        write_cols = [c for c in upd.columns if c in wide_idx.columns]
+        if write_cols:
+            all_idx = wide_idx.index.union(upd.index)
+            wide_idx = wide_idx.reindex(all_idx)
+            wide_idx.loc[upd.index, write_cols] = upd[write_cols].to_numpy()
 
-def _pad_points(pts: np.ndarray, target: int = 4) -> List[Tuple[Optional[float], Optional[float]]]:
-    out: List[Tuple[Optional[float], Optional[float]]] = []
-    for i in range(target):
-        if i < len(pts):
-            out.append((float(pts[i][0]), float(pts[i][1])))
-        else:
-            out.append((None, None))
-    return out
+            wide = wide_idx.reset_index()
+            wide = wide.reindex(columns=WIDE_CSV_STRUCTURE + [c for c in wide.columns if c not in WIDE_CSV_STRUCTURE])
+            wide.sort_values("frame", inplace=True)
+            wide.to_csv(out_csv, index=False)
 
+    print(f"Curves → {out_csv.resolve()}")

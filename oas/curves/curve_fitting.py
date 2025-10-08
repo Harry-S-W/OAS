@@ -11,8 +11,7 @@ from oas.config import (
     LOWER_INNER_RIGHT_COORDS, LOWER_INNER_LEFT_COORDS,
 )
 
-# ---------------------------------------------------------------------------
-# helper maths --------------------------------------------------------------
+
 def _polyval(c: Sequence[float], t: float) -> float:
     return float(np.polyval(c, t))
 
@@ -61,7 +60,6 @@ def _eval_coeffs(cx: Sequence[float], cy: Sequence[float], t: float) -> Tuple[fl
     return _polyval(cx, t), _polyval(cy, t)
 
 
-# ---------------------------------------------------------------------------
 class CurveFitting:
     # region metadata table keeps code DRY
     _REGIONS = {
@@ -74,8 +72,6 @@ class CurveFitting:
         "lower_inner_right": (LOWER_INNER_RIGHT_COORDS, 2),
         "lower_inner_left":  (LOWER_INNER_LEFT_COORDS,  2),
     }
-
-    # ------------ init -----------------------------------------------------
     def __init__(self, src: str | pd.DataFrame, row: int, t: float):
         self.landmarks = pd.read_csv(src) if isinstance(src, str) else src
         self.row = row
@@ -83,7 +79,6 @@ class CurveFitting:
         self._rowdata = self.landmarks.iloc[row]
         self._coeff_cache: Dict[str, Tuple[np.ndarray, np.ndarray]] = {}
 
-    # ------------ utility extras kept -------------------------------------
     @staticmethod
     def mirror_curve_vertically(points):
         P0, *_, P3 = points
@@ -101,7 +96,6 @@ class CurveFitting:
             Q1, Q2 = (midx, midy+offset), (midx, midy-offset)
         return [P0, Q1, Q2, P3]
 
-    # ------------ public API identical to old ------------------------------
     # point + coeffs
     def upper_outer_right_curve(self):  return self._curve("upper_outer_right")
     def upper_outer_left_curve(self):   return self._curve("upper_outer_left")
@@ -138,7 +132,6 @@ class CurveFitting:
         return cx, cy
 
     def _coeffs_with_pts(self, region: str) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """Always returns (cx, cy, pts) without mutating the cache format."""
         coord_list, deg = self._REGIONS[region]
         pts = np.array([[self._rowdata[x], self._rowdata[y]] for x, y in coord_list], float)
         cx, cy = (_cubic_coeffs if deg == 3 else _quad_coeffs)(pts)

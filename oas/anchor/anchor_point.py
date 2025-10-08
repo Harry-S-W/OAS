@@ -27,7 +27,6 @@ class Anchor:
             raise TypeError("filtering must be bool")
         self.filtering = filtering
 
-    # ---- internals --------------------------------------------------------
     @staticmethod
     def _pair_midpoints(row: pd.Series, pairs: Sequence[tuple[str,str]]):
         mids = []
@@ -38,7 +37,6 @@ class Anchor:
         std = float(np.std(mids))
         return avg, std
 
-    # ---- components -------------------------------------------------------
     def x_outer(self, row_idx: int): return self._pair_midpoints(self.landmarks.loc[row_idx], X_OUTER_BASED_ANCHOR_PAIRS)
     def x_inner(self, row_idx: int): return self._pair_midpoints(self.landmarks.loc[row_idx], X_INNER_BASED_ANCHOR_PAIRS)
     def y_outer(self, row_idx: int): return self._pair_midpoints(self.landmarks.loc[row_idx], Y_OUTER_BASED_ANCHOR_PAIRS)
@@ -49,7 +47,6 @@ class Anchor:
         # sqrt((0.5*u1)^2 + (0.5*u2)^2)
         return float(np.hypot(0.5*u1, 0.5*u2))
 
-    # ---- public API -------------------------------------------------------
     def get_all_anchors(self, row_idx: int) -> dict:
         x_out = self.x_outer(row_idx)
         x_in  = self.x_inner(row_idx)

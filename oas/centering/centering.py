@@ -5,11 +5,10 @@ import pandas as pd
 from tqdm import tqdm
 
 from oas.anchor.anchor_point import Centering
-from oas.schemas import CENTRED_COLS
-from oas.io import ensure_dir, header_if_empty
+from oas.schemas import WIDE_CSV_STRUCTURE
 
 """
-For some reason I coded the centering function in the anchors file - so find that function in oas/anchor/anchor_point.py
+for some reason the centering code was done in the same file that calculates the anchor so look there for that
 """
 
 def _unpack_xy(pt) -> Tuple[float, float]:
@@ -20,69 +19,61 @@ def _unpack_xy(pt) -> Tuple[float, float]:
     except Exception:
         return math.nan, math.nan
 
-def _get_pose_row(df: pd.DataFrame, row: int):
-    """Return (Rx,Ry,Rz) for this row. Accepts either pose_R* or bare R* column names."""
-    def pick(col_a, col_b):
-        if col_a in df.columns: return df.loc[row, col_a]
-        if col_b in df.columns: return df.loc[row, col_b]
-        return math.nan
-    Rx = pick("pose_Rx", "Rx")
-    Ry = pick("pose_Ry", "Ry")
-    Rz = pick("pose_Rz", "Rz")
-    return float(Rx) if pd.notna(Rx) else math.nan, \
-           float(Ry) if pd.notna(Ry) else math.nan, \
-           float(Rz) if pd.notna(Rz) else math.nan
-"""ADD POSE TO CENTERING CSV OUTPUT"""
+def run(input_file: str, output_file: Path, *, force: bool = False, pose_corr: bool, start: int = 0, end: Optional[int] = None,) -> None:
+    out_csv = output_file
+    out_csv.parent.mkdir(parents=True, exist_ok=True)
+    if not out_csv.exists() or out_csv.stat().st_size == 0:
+        pd.DataFrame(columns=WIDE_CSV_STRUCTURE).to_csv(out_csv, index=False)
 
-def run(
-    input_file: str,
-    output_dir: Path,
-    *,
-    force: bool = False,
-    start: int = 0,
-    end: Optional[int] = None,
-) -> None:
-    output_dir = ensure_dir(output_dir)
-    anchors_csv = output_dir / "anchors.csv"
-    centred_csv = output_dir / "centred_landmarks.csv"
+    in_df = pd.read_csv(input_file)
+    wide = pd.read_csv(out_csv)
+    if "frame" not in wide.columns:
+        raise FileNotFoundError("Wide CSV missing 'frame' column.")
+    anchors_df = wide.set_index("frame")
 
-    if not anchors_csv.exists() or anchors_csv.stat().st_size == 0:
-        raise FileNotFoundError("output.csv missing/empty — run anchors first.")
-
-    if centred_csv.exists() and centred_csv.stat().st_size > 0 and not force:
-        print("centred_landmarks.csv has data. Append? (y/N): ", end="")
-        if input().strip().lower() != "y":
-            print("Aborting."); return
-
-    header_if_empty(centred_csv, CENTRED_COLS)
-
-    in_df = pd.read_csv(input_file)  # load once
-    anchors_df = pd.read_csv(anchors_csv)
     total = len(in_df)
     if end is None or end > total:
         end = total
+    if start < 0:
+        start = 0
+    if start >= end:
+        print("Nothing to do: start >= end.")
+        return
+
+    updates = []
 
     for row in tqdm(range(start, end), desc="Centering", unit="frame"):
         try:
-            xa = float(anchors_df.loc[row, "x_anchor"])
-            ya = float(anchors_df.loc[row, "y_anchor"])
-            Rx, Ry, Rz = _get_pose_row(in_df, row)
+            if row not in anchors_df.index:
+                continue
+            xa = float(anchors_df.at[row, "x_anchor"]) if pd.notna(anchors_df.at[row, "x_anchor"]) else math.nan
+            ya = float(anchors_df.at[row, "y_anchor"]) if pd.notna(anchors_df.at[row, "y_anchor"]) else math.nan
 
-            # pass DataFrame, not filename
-            pts = Centering(in_df, row, True).center_with_anchor(xa, ya) # list of (x,y)
+            pts = Centering(in_df, row, True).center_with_anchor(xa, ya)
             xs: List[float] = []
             ys: List[float] = []
-            for i in range(20):  # landmarks 48..67
+            for i in range(20):
                 x, y = _unpack_xy(pts[i] if i < len(pts) else None)
                 xs.append(x); ys.append(y)
 
-            rec = {"frame": int(row), "pose_Rx": Rx, "pose_Ry": Ry, "pose_Rz": Rz}
+            rec = {"frame": int(row), "pose_correction": pose_corr}
             rec.update({f"x_{i}": xs[i - 48] for i in range(48, 68)})
             rec.update({f"y_{i}": ys[i - 48] for i in range(48, 68)})
-
-            pd.DataFrame([rec]).to_csv(centred_csv, mode="a", header=False, index=False)
+            updates.append(rec)
 
         except Exception as e:
             print(f"Error on row {row}: {e}")
 
-    print(f"Centered → {centred_csv.resolve()}")
+    if updates:
+        wide_idx = wide.set_index("frame")
+        upd = pd.DataFrame(updates).set_index("frame")
+        wide_idx.update(upd)
+        new_frames = upd.index.difference(wide_idx.index)
+        if len(new_frames) > 0 and not upd.loc[new_frames].empty:
+            wide_idx = pd.concat([wide_idx, upd.loc[new_frames]], axis=0)
+        wide = wide_idx.reset_index()
+        wide = wide.reindex(columns=WIDE_CSV_STRUCTURE + [c for c in wide.columns if c not in WIDE_CSV_STRUCTURE])
+        wide.sort_values("frame", inplace=True)
+        wide.to_csv(out_csv, index=False)
+
+    print(f"Centered → {out_csv.resolve()}")

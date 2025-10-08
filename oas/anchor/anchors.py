@@ -5,6 +5,8 @@ import math
 from oas.anchor.anchor_point import Anchor
 from oas.schemas import ANCHOR_COLS
 from oas.io import ensure_dir, header_if_empty
+from oas.schemas import WIDE_CSV_STRUCTURE
+
 
 
 def _get_pose_row(df: pd.DataFrame, row: int):
@@ -20,18 +22,12 @@ def _get_pose_row(df: pd.DataFrame, row: int):
            float(Ry) if pd.notna(Ry) else math.nan, \
            float(Rz) if pd.notna(Rz) else math.nan
 
-def run(input_file: str, output_dir: Path, *, force: bool=False, start: int=0, end: int|None=None) -> None:
-    output_dir = ensure_dir(output_dir)
-    out_csv = output_dir / "anchors.csv"
+def run(input_file: str, output_file: Path, *, pose_corr: bool, force: bool=False, start: int=0, end: int|None=None) -> None:
+    out_csv = output_file  # WIDE CSV PATH
 
-    # prompt before appending unless --force
-    if out_csv.exists() and out_csv.stat().st_size > 0 and not force:
-        print("Anchors.csv has data. Append? (y/N): ", end="")
-        if input().strip().lower() != "y":
-            print("Aborting."); return
-
-    # Write header once (now includes pose columns)
-    header_if_empty(out_csv, ANCHOR_COLS)
+    out_csv.parent.mkdir(parents=True, exist_ok=True)
+    if not out_csv.exists() or out_csv.stat().st_size == 0:
+        pd.DataFrame(columns=WIDE_CSV_STRUCTURE).to_csv(out_csv, index=False)
 
     df = pd.read_csv(input_file)
     A = Anchor(df, filtering=True)
@@ -45,26 +41,40 @@ def run(input_file: str, output_dir: Path, *, force: bool=False, start: int=0, e
         print("Nothing to do: start >= end.")
         return
 
+    # Collect updates here (one row per frame with only the columns we want to fill)
+    updates = []
+
     for row in tqdm(range(start, end), desc="Anchors", unit="frame"):
         try:
             d = A.get_all_anchors(row)
             Rx, Ry, Rz = _get_pose_row(df, row)
 
-            rec = {
-                "frame": int(row),
-                "pose_Rx": Rx, "pose_Ry": Ry, "pose_Rz": Rz,
-                "x_outer": d["x_outer"][0], "x_outer_uncertainty": d["x_outer"][1],
-                "x_inner": d["x_inner"][0], "x_inner_uncertainty": d["x_inner"][1],
-                "y_outer": d["y_outer"][0], "y_outer_uncertainty": d["y_outer"][1],
-                "y_inner": d["y_inner"][0], "y_inner_uncertainty": d["y_inner"][1],
-                "x_anchor": d["x_anchor"][0], "x_anchor_uncertainty": d["x_anchor"][1],
-                "y_anchor": d["y_anchor"][0], "y_anchor_uncertainty": d["y_anchor"][1],
-            }
-
-            # Append one row, no header (already written)
-            pd.DataFrame([rec], columns=ANCHOR_COLS).to_csv(out_csv, mode="a", header=False, index=False)
+            updates.append({
+                "frame": int(row)+1,
+                "pose_correction": pose_corr,
+                "pose_Rx": float(Rx), "pose_Ry": float(Ry), "pose_Rz": float(Rz),
+                "x_anchor": float(d["x_anchor"][0]),
+                "y_anchor": float(d["y_anchor"][0]),
+                # ONLY anchor uncertainties (ignore per-landmark uncertainties)
+                "x_unc": float(d["x_anchor"][1]),
+                "y_unc": float(d["y_anchor"][1]),
+            })
 
         except Exception as e:
             print(f"Error on row {row}: {e}")
+
+    if updates:
+        wide = pd.read_csv(out_csv).set_index("frame")
+        upd  = pd.DataFrame(updates).set_index("frame")
+
+        wide.update(upd)
+        new_frames = upd.index.difference(wide.index)
+        if len(new_frames) > 0 and not upd.loc[new_frames].empty:
+            wide = pd.concat([wide, upd.loc[new_frames]], axis=0)
+
+        wide = wide.reset_index()
+        wide = wide.reindex(columns=WIDE_CSV_STRUCTURE + [c for c in wide.columns if c not in WIDE_CSV_STRUCTURE])
+        wide.sort_values("frame", inplace=True)
+        wide.to_csv(out_csv, index=False)
 
     print("Anchors →", out_csv.resolve())
