@@ -132,6 +132,29 @@ LANDMARK_PAIRS = [
     ("x_67", "y_67")
 ]
 
+LANDMARK_PAIRS_UNC = [
+    ("x_48_unc", "y_48_unc"),
+    ("x_49_unc", "y_49_unc"),
+    ("x_50_unc", "y_50_unc"),
+    ("x_51_unc", "y_51_unc"),
+    ("x_52_unc", "y_52_unc"),
+    ("x_53_unc", "y_53_unc"),
+    ("x_54_unc", "y_54_unc"),
+    ("x_55_unc", "y_55_unc"),
+    ("x_56_unc", "y_56_unc"),
+    ("x_57_unc", "y_57_unc"),
+    ("x_58_unc", "y_58_unc"),
+    ("x_59_unc", "y_59_unc"),
+    ("x_60_unc", "y_60_unc"),
+    ("x_61_unc", "y_61_unc"),
+    ("x_62_unc", "y_62_unc"),
+    ("x_63_unc", "y_63_unc"),
+    ("x_64_unc", "y_64_unc"),
+    ("x_65_unc", "y_65_unc"),
+    ("x_66_unc", "y_66_unc"),
+    ("x_67_unc", "y_67_unc")
+]
+
 """
 ANCHOR PAIRS
 """

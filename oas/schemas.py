@@ -116,7 +116,7 @@ def quadratic_curve_col_unc():
     return quadratic_curve_uncertainty_cols
 
 WIDE_CSV_STRUCTURE = (
-    ["frame", "pose_correction", "x_anchor", "x_unc", "y_anchor", "y_unc", # int, bool, px, px, px, px
+    ["frame", "timestamp", "pose_correction", "x_anchor", "x_unc", "y_anchor", "y_unc", # int, seconds, bool, px, px, px, px
     "pose_Rx", "pose_Ry", "pose_Rz"] # rad, rad, rad
     +[f"x_{i}" for i in range(48, 68)] # px
     +[f"y_{i}" for i in range(48, 68)] # px
@@ -145,13 +145,27 @@ WIDE_CSV_STRUCTURE = (
 
     # MOUTH AREA
 
-    + ["O_Q1", "O_Q2", "O_Q3", "O_Q4"] # Outer area (entire mouth but based on outer landmarks/curves) - px
-    + ["I_Q1", "I_Q2", "I_Q3", "I_Q4"] # Inner area (Based on inner landmarks/curves so sort of the open area of the mouth) - px
+    # QUADRANT BASED AREA
 
-    # MOUTH AREA UNCERTAINTY
+    + ["QUAD_O_Q1", "QUAD_O_Q2", "QUAD_O_Q3", "QUAD_O_Q4", "QUAD_O_total"] # Outer area (entire mouth but based on outer landmarks/curves) - px
+    + ["QUAD_I_Q1", "QUAD_I_Q2", "QUAD_I_Q3", "QUAD_I_Q4", "QUAD_I_total"] # Inner area (Based on inner landmarks/curves so sort of the open area of the mouth) - px
 
-    + ["O_Q1_unc", "O_Q2_unc", "O_Q3_unc", "O_Q4_unc"] # px
-    + ["I_Q1_unc", "I_Q2_unc", "I_Q3_unc", "I_Q4_unc"] # px
+    # QUADRANT BASED  AREA UNCERTAINTY
+
+    + ["QUAD_O_Q1_unc", "QUAD_O_Q2_unc", "QUAD_O_Q3_unc", "QUAD_O_Q4_unc", "QUAD_O_total_unc"] # px
+    + ["QUAD_I_Q1_unc", "QUAD_I_Q2_unc", "QUAD_I_Q3_unc", "QUAD_I_Q4_unc","QUAD_I_total_unc"] # px
+
+    #
+    #
+    # BIO BASED AREA
+
+    + ["BIO_O_Q1", "BIO_O_Q2", "BIO_O_Q3", "BIO_O_Q4", "BIO_O_total"]  # Outer area (entire mouth but based on outer landmarks/curves) - px
+    + ["BIO_I_Q1", "BIO_I_Q2", "BIO_I_Q3", "BIO_I_Q4", "BIO_I_total"]  # Inner area (Based on inner landmarks/curves so sort of the open area of the mouth) - px
+
+    # BIO BASED  AREA UNCERTAINTY
+
+    + ["BIO_O_Q1_unc", "BIO_O_Q2_unc", "BIO_O_Q3_unc", "BIO_O_Q4_unc", "BIO_O_total_unc"]  # px
+    + ["BIO_I_Q1_unc", "BIO_I_Q2_unc", "BIO_I_Q3_unc", "BIO_I_Q4_unc", "BIO_I_total_unc"]  # px
 
 )
 
