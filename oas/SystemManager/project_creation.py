@@ -64,9 +64,17 @@ class ProjectCreation:
             except FileNotFoundError as e:
                 print(f"Error creating project metadata -- ~/{path} -- can not be found or does not exist.")
 
+    def _make_participant_dir(self, path: str)-> str:
+        if os.path.exists(path + "/participants/"):
+            pass
+        elif not os.path.exists(path + "/participants/"):
+            os.mkdir(path + "/participants")
+
     def project_creation(self, out_dir: str, name: str):
         project_path = self._creating_project_directory(out_dir, name)
         # Now make project data for directory
         self._creating_project_metadata(name, project_path)
         # Now making state.oasproj so we can make command usage locative
         self._creating_state_system(name, project_path)
+        # we can also make the participants folder after
+        self._make_participant_dir(project_path)
