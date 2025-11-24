@@ -1,4 +1,4 @@
-from .cli import main
+from .shell import OASShell
 
-if __name__ == "__main__":
-    main()
+def main():
+    OASShell().cmdloop()

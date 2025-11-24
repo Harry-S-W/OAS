@@ -35,10 +35,10 @@ class LandmarkCorrection:
 
     def pose_correction(self, Rx, Ry, Rz):
         """
-        For the given frame (self.row):
-          - read Rx, Ry, Rz (assumed radians, like OpenFace)
-          - apply rotation to each landmark pair in LANDMARK_PAIRS
-          - return list of (x', y') in the SAME order as LANDMARK_PAIRS
+        For given frame (self.row):
+          read Rx, Ry, Rz (assumed radians, like OpenFace)
+          apply rotation to each landmark pair in LANDMARK_PAIRS
+          return list of (x', y') in the SAME order as LANDMARK_PAIRS
         """
         # Getting data
         rowdata = self.data.iloc[self.row]
@@ -60,7 +60,7 @@ class LandmarkCorrection:
 
         Formula: x' = xcos(θ) + ysin(θ)
 
-        :return: (x', y)
+        returns (x', y)
         """
         X_pri = (x * math.cos(Rz)) + (y * math.sin(Rz))
         return X_pri

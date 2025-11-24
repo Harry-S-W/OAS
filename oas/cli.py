@@ -1,29 +1,26 @@
-import argparse
-import os.path
-
+from oas.shell import OASShell
 from oas.Session.session_manager import SessionManagement
-from oas.SystemManager.system_verification import SystemVerifier
 
-"""
-We sort of have to re-make the CLI project because OAS is just too big now. I am gonna make it so it acts more like
-this IDE where you can open a project file and work within a project rather than run one command. 
+def main():
+    session = SessionManagement()
+    shell = OASShell(session)
+    shell.start()
 
-Now we can like add and edit things like calibration and havemultiple video files in one folder and it will be easier
-for inter-trial stats - this will all be in ~/OAS-Engine/SystemManager
-"""
+# THIS WILL ALL BE DOCSTRINGED AS
 
 
 
-
-
-
-
+""""
 def main():
     parser = argparse.ArgumentParser(
         prog="Oromotor Asymmetry System (OAS) CLI",
         description="OAS Calculates mouth movement and compares that to a praat analysis."
     )
     subparsers = parser.add_subparsers(dest="target")
+
+    # SHELL CMD
+
+    shell_parser = subparsers.add_parser("shell", help="Start the OAS interactive shell")
 
     # GLOBAL/SESSION LEVEL COMMANDS
 
@@ -62,16 +59,33 @@ def main():
     participant_create = participant_sub.add_parser("create", help="Create a participant file")
     participant_create.add_argument("ID")
 
+    participant_list = participant_sub.add_parser("list", help="View the participants in your project")
+
+    participant_delete = participant_sub.add_parser("delete", help="Delete participant file")
+    participant_delete.add_argument("ID")
+
+    participant_view = participant_sub.add_parser("view", help="View participant information")
+
 
     # TRIAL LEVEL ARGUMENTS
 
     trial_parser = subparsers.add_parser("trial", help="Trial level commands")
     trial_sub = trial_parser.add_subparsers(dest="action")
 
+    trial_open = trial_sub.add_parser("open", help="Open a trial")
+    trial_open.add_argument("ID")
+
+
     args = parser.parse_args()
 
     session = SessionManagement()
     print(session.get_prompt())
+
+    if args.target == "shell":
+        session = SessionManagement()
+        shell = OASShell(session)
+        shell.start()
+        return
 
     if args.target == "session":
         if args.action == "reset":
@@ -81,14 +95,14 @@ def main():
             return
         if args.action == "c":
             session = SessionManagement()
-            session.session_summary()
+            print(session.session_summary())
 
 
     if args.target == "project":
         if args.action == "create":
 
             print(f"project path: {args.path}\nProject Name: {args.name}")
-            from oas.SystemManager.project_creation import ProjectCreation
+            from oas.SystemManager.project.project_creation import ProjectCreation
             ProjectCreation().project_creation(args.path, args.name)
 
             # Nowe we put them in that project
@@ -128,15 +142,16 @@ def main():
 
                 # then we verify the participant folder exists
                 session_data = session._read_session()
+
                 try:
-                    SystemVerifier.participant_verifier(f"{session_data['currentProject']}" + "/participants/" + f"{args.ID}")
+                    SystemVerifier.participant_verifier(session_data["currentProject"], args.ID)
 
                 except RuntimeError as e:
                     print(f"[OAS ERROR] {e}")
-                    return
+                    print(session.session_summary())
 
                 # Once that is done we edit the Session manager to write the participant we are in
-                session.set_current_participant(args.ID)
+                session.set_current_participant(str(args.ID))
 
                 print(f"Participant file opened at at: {session_data['currentProject']}/participants/{args.ID}")
                 print(session.session_summary())
@@ -150,13 +165,53 @@ def main():
                 session_data = session._read_session()
                 directory = session_data["currentProject"]
                 # now we create the participant folder
-                from oas.SystemManager.participant_creation import ParticipantCreation
+                from oas.SystemManager.participants.participant_creation import ParticipantCreation
                 try:
                     ParticipantCreation().creating_participant_directory(directory, args.ID)
 
                 except RuntimeError as e:
                     print(f"[OAS ERROR] {e}")
                     return
+
+            if args.action == "list":
+                # first we have to verify they are in a project
+                session = SessionManagement()
+                session.require_project()
+
+                # get project path so we can get the list of participants
+                session_data = session._read_session()
+                directory = session_data["currentProject"]
+
+                # check that the participants subdir exists
+                SystemVerifier.participant_dir_verifier(directory)
+
+                # now we can get the list of participants inside
+
+                participants = ParticipantList.get_participants(directory)
+                print(f"Participants: {participants}")
+
+            if args.action == "view":
+                # check they are in a project
+                session = SessionManagement()
+                session.require_project()
+
+                # check they are in a participant folder
+
+                session.require_participant()
+
+                # we want to get the participant file/path from the session data
+                path = session._read_session().get("currentParticipant")
+
+                # Now we can access the data in the participant folder the user is "logged in" to
+                try:
+                    ParticipantViewer.participant_viewer(path)
+
+                except Exception as e:
+                    print(f"[OAS ERROR] {e}")
+
+
+        # TRIAL LEVEL COMMANDS/ARGS
+
     except RuntimeError as e:
         print(f"[OAS ERROR] {e}")
         return
@@ -165,9 +220,16 @@ def main():
 
     # TRIAL LEVEL COMMANDS/ARGUMENTS
 
-    #trial_parser = subparsers.add_parser("trial", help="Trial level commands")
+    try:
+        if args.target == "trial":
+            if args.action == "open":
+                pass
 
+    except RuntimeError as e:
+        print(f"[OAS ERROR] {e}")
+        return
 
+"""
 """
 
 HOW TO USE CLI:

@@ -106,6 +106,7 @@ class SessionManagement:
             "currentTrial": None,
         }
         self._write_session(session)
+        print("SESSION DATA UPDATED")
         return session
 
     def set_current_project(self, projectPath: str) -> Dict[str, Any]:
@@ -124,6 +125,7 @@ class SessionManagement:
         session["currentTrial"] = None
 
         self._write_session(session)
+        print("SESSION DATA UPDATED")
         return session
 
     def set_current_participant(self, participantId: str) -> Dict[str, Any]:
@@ -134,22 +136,24 @@ class SessionManagement:
         """
 
         session = self._read_session()
+        participant_global_dir = os.path.join(session.get("currentProject"), "participants")
 
-        if not session.get("currentProject"):
+        if not participant_global_dir:
             raise RuntimeError(
                 "No project is currently open.\n"
                 "Open a project first using:\n"
                 "    oas project open <project-path>"
             )
 
-        elif participantId not in session.get("currentProject"):
+        elif not os.path.join(participant_global_dir, participantId):
             raise RuntimeError(
-                f"Participant <{participantId}> in this project"
+                f"Participant <{participantId}> not in <{participant_global_dir}>"
             )
 
-        session["currentParticipant"] = participantId
+        session["currentParticipant"] = os.path.join(participant_global_dir, participantId)
         session["currentTrial"] = None  # Resets cuz new participant means new data
         self._write_session(session)
+        print("SESSION DATA UPDATED")
         return session
 
     def set_current_trial(self, trialName: str) -> Dict[str, Any]:
@@ -174,8 +178,9 @@ class SessionManagement:
 
         # I will add the same error handling here as before to check if trial exists
 
-        session["currentTrial"] = trialName
+        session["currentTrial"] = os.path.join(session["currentParticipant"], trialName)
         self._write_session(session)
+        print("SESSION DATA UPDATED")
         return session
 
     """
@@ -272,10 +277,10 @@ class SessionManagement:
             return "[OAS] (no project)"
 
         # Build context
-        ctx = f"[OAS] {proj}"
+        ctx = f"[OAS] {os.path.basename(os.path.normpath(proj))}"
         if part:
-            ctx += f" :: participant {part}"
+            ctx += f" :: participant: {os.path.basename(os.path.normpath(part))}"
         if trial:
-            ctx += f" :: trial {trial}"
+            ctx += f" :: trial: {os.path.basename(os.path.normpath(trial))}"
 
         return ctx

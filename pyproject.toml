@@ -4,10 +4,22 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "oas"
-version = "1.0.0"
+version = "0.5.0"
 description = "Oromotor Asymmetry System (OAS)"
 requires-python = ">=3.10"
+license = "CC-BY-4.0"
+
+[project.authors]
+authors = [
+    { name = "Harry Woodhouse", email = "jgf526@york.ac.uk" },
+    { name = "Harry Woodhouse"}
+]
+
+[project.dependencies]
 dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/Harry-S-W/OAS"
 
 [project.scripts]
 oas = "oas.cli:main"

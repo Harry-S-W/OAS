@@ -17,13 +17,20 @@ class SystemVerifier:
             raise RuntimeError(f"Error: ~{path} does not exist or can not be found.")
 
     @staticmethod
-    def participant_verifier(path: str)-> None:
+    def participant_dir_verifier(path: str)-> None:
+        path = os.path.abspath(path+"/participants")
+        if not os.path.exists(path):
+            raise RuntimeError(f"Error: ~{path} does not exist or can not be found.")
+
+    @staticmethod
+    def participant_verifier(path: str, ID)-> None:
+        path = os.path.join(path, "participants", ID)
         path = os.path.abspath(path)
         if not os.path.exists(path):
             raise RuntimeError(f"Error: ~{path} does not exist or can not be found.")
 
     @staticmethod
-    def trial_verifier(path: str)-> None:
-        path = os.path.abspath(path)
+    def trial_verifier(path: str, ID)-> None:
+        path = os.path.join(path, ID)
         if not os.path.exists(path):
             raise RuntimeError(f"Error: ~{path} does not exist or can not be found.")
