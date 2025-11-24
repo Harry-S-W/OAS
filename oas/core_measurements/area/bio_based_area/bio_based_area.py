@@ -47,12 +47,10 @@ class BioArea:
         v1 = LC - RC
         v2 = LM - PH
 
-        M = np.column_stack((v1, -v2))
-        rhs = PH - LC
-        s, t = np.linalg.solve(M, rhs)
+        origin = np.array([0.0, 0.0])
 
-        origin = LC + s * v1
         B = np.column_stack((v1, v2))
+
         Binv = np.linalg.inv(B)
         scale = abs(np.linalg.det(B))
 
