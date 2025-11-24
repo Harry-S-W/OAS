@@ -3,6 +3,7 @@ This file is to create participant folders
 """
 
 import os
+import json
 
 class ParticipantCreation:
     def __init__(self):
@@ -19,7 +20,13 @@ class ParticipantCreation:
 
             participant_dir = os.path.join(project_dir, "participants", participant_id)
             try:
+                meta = {
+                    "ID": participant_id,
+                }
                 os.mkdir(participant_dir)
+                with open(os.path.join(participant_dir, "meta.oasproj"), "w")as f:
+                    json.dump(meta, f, indent=4)
+
                 participant_directories.append(participant_dir)
 
             except RuntimeError as e:

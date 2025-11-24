@@ -3,6 +3,7 @@ This file is to create participant folders
 """
 
 import os
+import json
 
 class TrialCreation:
     def __init__(self):
@@ -20,7 +21,15 @@ class TrialCreation:
             trial_dir = os.path.join(participant_dir, trial_id)
             try:
                 os.mkdir(trial_dir)
+                os.mkdir(os.path.join(trial_dir, "calibration"))
                 trial_directories.append(participant_dir)
+
+                trial_meta = {
+                    "placeholder": "placeholder"
+                }
+
+                with open(os.path.join(trial_dir, "meta.oasproj"), "w")as f:
+                    json.dump(trial_meta, f, indent=4)
 
             except RuntimeError as e:
                 if os.path.exists(participant_dir):

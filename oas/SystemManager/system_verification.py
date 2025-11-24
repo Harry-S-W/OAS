@@ -30,7 +30,13 @@ class SystemVerifier:
             raise RuntimeError(f"Error: ~{path} does not exist or can not be found.")
 
     @staticmethod
-    def trial_verifier(path: str, ID)-> None:
-        path = os.path.join(path, ID)
-        if not os.path.exists(path):
-            raise RuntimeError(f"Error: ~{path} does not exist or can not be found.")
+    def trial_verifier(path: str, ID: str=None)-> None:
+        if ID is None:
+            path = os.path.join(path)
+            if not os.path.exists(path):
+                raise RuntimeError(f"Error: ~{path} does not exist or can not be found.")
+
+        else:
+            path = os.path.join(path, ID)
+            if not os.path.exists(path):
+                raise RuntimeError(f"Error: ~{path} does not exist or can not be found.")

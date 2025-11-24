@@ -8,6 +8,7 @@ from oas.SystemManager.system_verification import SystemVerifier
 from oas.SystemManager.participants.participant_list import ParticipantList
 from oas.SystemManager.participants.participant_creation import ParticipantCreation
 from oas.SystemManager.participants.participant_view import ParticipantViewer
+from oas.SystemManager.trial.trial_run import TrialRun
 import os
 import shlex
 
@@ -232,7 +233,39 @@ class OASShell:
             except RuntimeError as e:
                 print(f"[OAS ERROR] {e}")
             except Exception as e:
+                print(f"[OAS INTERNAL ERROR] {e}")
 
+        elif cmd == "trial":
+
+            try:
+                subcmd = parts[1]
+
+                if subcmd == "run":
+                    # we have to verify they are in a tral folder
+
+                    self.session.require_trial()
+
+                    # we need to confirm the trial folder exists
+
+                    trial_dir = self.session._read_session().get("currentTrial")
+
+                    SystemVerifier.trial_verifier(trial_dir)
+
+                    # once we confirm it exists we can call the trial_run function to run the trial
+
+                    run = TrialRun
+
+                    run._run_oas(trial_path=trial_dir)
+
+                else:
+                    print("[OAS ERROR] Unknown <trial> command. Use <trial help> for help")
+
+
+            except IndexError:
+                print("[OAS ERROR] Missing arguments. Use: session <reset> or <c>\nor use <session help>")
+            except RuntimeError as e:
+                print(f"[OAS ERROR] {e}")
+            except Exception as e:
                 print(f"[OAS INTERNAL ERROR] {e}")
 
         elif cmd in ("h", "help"):

@@ -115,18 +115,25 @@ class SessionManagement:
 
         This is used after the project manager verifies that the path exists so the session manager doesnt have to deal
         with that logic
+
+        We also have to verify the folder they opened is an actual OAS project by checking for the <project name>.oasproj file
         """
 
         projectPath = os.path.abspath(projectPath)
 
-        session = self._read_session()
-        session["currentProject"] = projectPath
-        session["currentParticipant"] = None # these reset because you open a new project so it is different data
-        session["currentTrial"] = None
+        if os.path.exists(os.path.join(projectPath, (os.path.basename(projectPath)+".oasproj"))):
 
-        self._write_session(session)
-        print("SESSION DATA UPDATED")
-        return session
+            session = self._read_session()
+            session["currentProject"] = projectPath
+            session["currentParticipant"] = None # these reset because you open a new project so it is different data
+            session["currentTrial"] = None
+
+            self._write_session(session)
+            print("SESSION DATA UPDATED")
+            return session
+
+        else:
+            raise FileNotFoundError(f"Not a valid OAS Project Folder. Can not find {os.path.join(projectPath, (os.path.basename(projectPath)+".oasproj"))}")
 
     def set_current_participant(self, participantId: str) -> Dict[str, Any]:
         """
