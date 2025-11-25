@@ -1,97 +1,78 @@
-"""
-
-My best sort of attempt to get the standard deviation of x/y as they how they are measured is beyond the OAS system
-
-I am gonna do it by having a sort of "calibration" section for OAS where the participant will sit still for ~5 seconds
-so we can see the jitter of x and y values because this about tracking noise.
-
-We then get the standard deviation of those ~5 seconds for x and y and that gives us delta y and delta x.
-
-I think I will make the length custom so other people can determine how long they want their calibration for. I will
-probably make a mini sort of menu thing in the CLI so at the start of -m "init" it will ask you to define the calibration
-phase.
-"""
-
+import os
+import shutil
+import subprocess
 import pandas as pd
 from pathlib import Path
-import os
-import subprocess
-import shutil
-from oas.config import LANDMARK_PAIRS
 
-class XYUncertainty:
+
+class LandmarkCalibration:
     """
-    Plan is:
-        1. Receive a video content path
-        2. Analyze that video in openface
-        3. Make a list of all x/y values from 48-68
-        4. Calculate the standard deviation of each x and y value from 48-68
-        5. Return a dict of the x/y column name and the x/y SD
+    Runs OpenFace on a calibration video and computes the SD of
+    all x/y facial landmarks (48–67 inclusive).
     """
-    def __init__(self, input: str, output: pd.DataFrame):
-        if os.path.exists(input):
-            self.input = input
-        else:
-            raise FileNotFoundError(f"{input} is not a valid file. If it is not in a local directory, ensure you use the "
-                                    f"absolute path. ")
-        if input != str:
-            raise TypeError(f"{input} Must be a str.")
 
-        if isinstance(output, (str, Path)):
-            self.landmarks = pd.read_csv(output)
-        elif isinstance(output, pd.DataFrame):
-            self.landmarks = output
-        else:
-            raise TypeError("src must be a CSV path or a pandas DataFrame")
+    OPENFACE_PATH = "/Users/harrywoodhouse/OpenFace/build/bin/FeatureExtraction" # I will definitely make this a custom dir and probs store it in project metadata
 
-    @staticmethod
-    def _run_openface(video_path, outpur_path, name: str=None):
-        openface_path = "/Users/harrywoodhouse/OpenFace/build/bin/FeatureExtraction" # I will make this a custom dir and keep it as like a sort of project metadata
-        if name is None:
-            name, _ = os.path.splitext(video_path)
-        else:
-            name = name +"_CALIBRATION"
-        output_dir = os.path.join(outpur_path, name)
-        os.makedirs(output_dir, exist_ok=True)
+    def __init__(self, video_path: str, output_dir: str):
+        video_path = Path(video_path)
+        output_dir = Path(output_dir)
 
-        # Copy video locally to output dir
-        local_video_path = os.path.join(output_dir, video_path)
-        shutil.copy(video_path, local_video_path)
+        if not video_path.exists():
+            raise FileNotFoundError(f"{video_path} does not exist.")
+
+        self.video_path = video_path
+        self.output_dir = output_dir
+
+    def run_openface(self) -> Path:
+
+        calib_dir = self.output_dir / "calibration"
+        calib_dir.mkdir(parents=True, exist_ok=True)
+
+        # Copy video into calibration directory
+        local_vid = calib_dir / self.video_path.name
+        shutil.copy2(self.video_path, local_vid)
 
         command = [
-            openface_path,
-            "-f", local_video_path,
-            "-out_dir", output_dir,
-            "-of", video_path,
-            "-aus",
-            "-pose",
-            "-2Dfp",
-            "-tracked"
+            self.OPENFACE_PATH,
+            "-f", str(local_vid),
+            "-out_dir", str(calib_dir),
+            "-2Dfp", "-tracked"
         ]
 
-        print(f"Running Calibration on {video_path} --> {output_dir}")
+        print(f"Running OAS calibration via OpenFace on: {local_vid}")
         result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout = result.stdout.decode()
-        stderr = result.stderr.decode()
-        log_text = stdout + stderr
 
         if result.returncode != 0:
-            raise RuntimeError(f"OpenFace failed:\n{result.stderr.decode()}")
+            raise RuntimeError(
+                f"OpenFace failed:\n{result.stderr.decode()}"
+            )
 
-        return output_dir, log_text
+        # Now we gotta find the CSV file that OpenFace gave
+        csv_files = list(calib_dir.glob("*.csv"))
+        if not csv_files:
+            raise FileNotFoundError("No OpenFace CSV output found in calibration directory.")
 
+        return csv_files[0]
 
     @staticmethod
-    def _get_x_y():
-        pass
+    def compute_sd(csv_path: Path) -> dict:
+        # now that we have ran openface we can actually get the SD of each x/y val and then return it as a dict
+        df = pd.read_csv(csv_path)
 
+        sd_dict = {}
+        for lm in range(48, 68):  # inclusive 48-67
+            x_col = f"x_{lm}"
+            y_col = f"y_{lm}"
 
+            if x_col not in df.columns or y_col not in df.columns:
+                raise ValueError(f"Missing {x_col}/{y_col} in CSV.")
 
+            sd_dict[x_col] = df[x_col].std()
+            sd_dict[y_col] = df[y_col].std()
 
-    """def build_updates(self, frames_index: pd.Index):
-        updates = pd.DataFrame(index=frames_index)
-        for i in range(48, 68):
-            updates[f"x_{i}_unc"] = self.value
-            updates[f"y_{i}_unc"] = self.value
-        return updates"""
+        return sd_dict
 
+    def calibrate(self) -> dict:
+
+        csv_file = self.run_openface()
+        return self.compute_sd(csv_file)

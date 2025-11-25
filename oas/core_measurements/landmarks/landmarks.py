@@ -1,6 +1,6 @@
 from pathlib import Path
 import pandas as pd
-from oas.core_measurements.landmarks.calibration_and_uncertainty.landmark_uncertainty import XYUncertainty
+from oas.core_measurements.landmarks.landmark_uncertainty import XYUncertainty
 from oas.schemas import WIDE_CSV_STRUCTURE
 
 def run(input_wide_csv: str | Path, output_wide_csv: Path, *, force: bool=False, value: float=0.5):
@@ -14,8 +14,8 @@ def run(input_wide_csv: str | Path, output_wide_csv: Path, *, force: bool=False,
         raise FileNotFoundError("Wide CSV missing 'frame' column.")
     wide_idx = wide.set_index("frame")
 
-    U = XYUncertainty(input=value)
-    upd = U.build_updates(wide_idx.index)
+    U = XYUncertainty()
+    upd = U.run(wide_idx.index)
 
     missing_cols = [c for c in upd.columns if c not in wide_idx.columns]
     if missing_cols:

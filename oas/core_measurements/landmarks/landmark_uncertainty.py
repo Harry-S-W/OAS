@@ -1,19 +1,29 @@
-"""
-
-FOR NOW, it just makes the uncertainty for x/y = +/- 0.5px
-
-"""
 
 import pandas as pd
 from pathlib import Path
+from oas.core_measurements.landmarks.calibration_and_uncertainty.landmark_uncertainty import LandmarkCalibration
+from oas.Session.session_manager import SessionManagement
+import os
 
 class XYUncertainty:
-    def __init__(self, value: float = 0.5):
-        self.value = float(value)
+    def __init__(self):
+        self.session = SessionManagement()
 
-    def build_updates(self, frames_index: pd.Index):
+    def run(self, frames_index: pd.Index):
         updates = pd.DataFrame(index=frames_index)
+
+
+        landmark_video = "/Users/harrywoodhouse/Desktop/OAS/OAS-Engine/data/test-data/v15044gf0000d1dlc67og65r2deqmhd0.mp4" # hardcoded for now but will change
+        output_file = os.path.join(self.session._read_session().get("currentTrial"), "calibration")
+
+        calibration = LandmarkCalibration(landmark_video, output_file)
+
+        SD = calibration.calibrate()
+
         for i in range(48, 68):
-            updates[f"x_{i}_unc"] = self.value
-            updates[f"y_{i}_unc"] = self.value
+            try:
+                updates[f"x_{i}_unc"] = SD[f"x_{i}"]
+                updates[f"y_{i}_unc"] = SD[f"y_{i}"]
+            except KeyError:
+                raise KeyError(f"Missing uncertainty value for landmark {i}. Calibration output incomplete.")
         return updates

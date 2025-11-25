@@ -4,7 +4,6 @@ This is the most important command file as it runs openface
 It has calibration as an option
 """
 
-from oas.core_measurements.landmarks.calibration_and_uncertainty.landmark_uncertainty import XYUncertainty
 from oas.core_measurements.landmarks.landmarks import run as run_landmarks
 from oas.core_measurements.anchor.anchors import run as run_anchors
 from oas.core_measurements.angles.angles import run as run_angles
@@ -60,7 +59,7 @@ class TrialRun:
 
         # RUNNING LANDMARK UNCERTAINTY
 
-        #run_landmarks(file, out_path, force=True)
+        run_landmarks(file, out_path, force=True)
 
         # RUNNING CENTERING MODULE
 
