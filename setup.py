@@ -1,9 +1,9 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="oas",
-    version="0.1.0",
-    packages=find_packages(),          # important: include the oas package
+    name="mosaic",
+    version="0.2.0",
+    packages=find_packages(),          # important: include the mosaic package
     install_requires=[
         "pandas~=2.3",
         "numpy~=2.3",
@@ -16,7 +16,7 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "oas=oas.cli:main",        # <— FIXED
+            "mosaic=mosaic.cli:main",        # <— FIXED
         ],
     },
     python_requires=">=3.12",
