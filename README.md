@@ -1,24 +1,95 @@
-# OROMOTOR ASYMMETRY SYSTEM (OAS)
-This is not a comprehensive readme file but simply shows the order of how OAS processes facial landmarks.
 
-## OAS PROCESS:
+# Oromotor Asymmetry System (OAS) v0.2.0
 
+Oromotor Asymmetry System (OAS) is a mathematical system which tracks mouth and jaw movement and correlates those measurements to a [parselmouth/praat](https://parselmouth.readthedocs.io/en/stable/#) analysis. OAS has three measurement "units": core measurements, complex measurements, and praat based measurements. 
+
+## Core measurements
+Core measurements serve as the backbone for the higher-level measurements used in facial tracking. It follows a simple pipiline.
 ```mermaid
 flowchart TD
     1[OpenFace Landmarks] --> 2[Anchor Calculation]
     2 --> 3[Landmark Centering]
     3 -.-> 4[Optional Pose Correction]
-    3 --> 5[Landmark Euclidean Distance Calculation]
-    4 -.-> 5
+    4 --> 5[Landmark Euclidean Distance Calculation]
     5 --> 6[Landmark Angle Calculation]
-    6 --> 7[Curves]
-    7 --> 8[Lip Curve Fitting]
-    7 --> 9[Lip Curve Integration -- aka Mouth Area Calculation]
-    8 --> 10[Wide CSV Output]
+    6 --> 7[Lip Curve Fitting]
+    7 --> 8[Quadrant Based Area]
+    7 --> 9[Biological Based Area]
+    8 --> 10[Core Measurement CSV Output]
     9 --> 10
-    3 --> 10
-    4 -.-> 10
-    5 --> 10
-    6 --> 10
-    2 --> 10
-    
+
+```
+
+Uncertainty is calculated for all metrics based off the standard deviation of landmark coordinates through a calibration sequence.
+
+## Complex measurements
+Complex measurements can be split into two categories: Temporal measurements and Motor Geometry. 
+
+### Temporal measurements
+As the name suggests, these are time-based metrics such as velocity, acceleration, jerk, commissure drift, lip open/close velocity, etc. These are exported to a temporal measurement csv file.
+
+### Motor Geometry
+Motor Geomotry measures oromotor control and consists of several modules such as commissure angle deviation, commissure rotation, and curvature metrics.
+
+## Praat analysis
+Praat analysis compares the movement of the mouth to what the mouth is doing. For example: VOT, pitch (F0), phonation, and vowel analysis (F1, F2).
+
+
+
+## Acknowledgements
+
+ - Joshua Woodhouse, Univeristy of York
+
+
+
+## API Reference
+I have never written an API reference before so please email me using the author information below for any changes (or submit a pull request I think).
+
+#### Installing OAS
+
+```http
+  pip install https://github.com/Harry-S-W/OAS.git
+```
+
+#### Using OAS
+OAS Uses a REPL (under heavy development) so it is ran in your terminal
+
+```http
+  > oas
+```
+You are now in the OAS environment and your terminal will look like the following, assuming you are not in any project, participant, or trial directory.
+
+```http
+OAS (no project) >
+```
+
+The prompt is dynamic and will change based on where you are within an OAS project and it is stateful. For example
+
+```http
+OAS (no project) > add project "project path" "project name"
+
+Project "project name" created at "project path"
+
+OAS project name >
+```
+
+This pattern is followed when accessing participant and trial directories as well.
+
+
+
+## Authors
+
+- Harry Woodhouse, University of York - [@harry-s-w](https://github.com/Harry-S-W)
+
+
+## License
+
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.en)
+
+
+## Contributing
+
+Contributions are always welcome!
+
+Just submit a pull request! (At least I think that is what you're supposed to do!)
+
