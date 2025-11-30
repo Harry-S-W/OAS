@@ -1,7 +1,7 @@
 
-# Oromotor Asymmetry System (OAS) v0.2.0
+# Motor-Oral Speech Analysis & Integrated Computation (MOSAIC)
 
-Oromotor Asymmetry System (OAS) is a mathematical system which tracks mouth and jaw movement and correlates those measurements to a [parselmouth/praat](https://parselmouth.readthedocs.io/en/stable/#) analysis. OAS has three measurement "units": core measurements, complex measurements, and praat based measurements. 
+Motor-Oral Speech Analysis & Integrated Computation (MOSAIC) is a mathematical system which tracks mouth and jaw movement and correlates those measurements to a [parselmouth/praat](https://parselmouth.readthedocs.io/en/stable/#) analysis. OAS has three measurement "units": core measurements, complex measurements, and praat based measurements. 
 
 ## Core measurements
 Core measurements serve as the backbone for the higher-level measurements used in facial tracking. It follows a simple pipiline.
@@ -29,7 +29,7 @@ Complex measurements can be split into two categories: Temporal measurements and
 As the name suggests, these are time-based metrics such as velocity, acceleration, jerk, commissure drift, lip open/close velocity, etc. These are exported to a temporal measurement csv file.
 
 ### Motor Geometry
-Motor Geomotry measures oromotor control and consists of several modules such as commissure angle deviation, commissure rotation, and curvature metrics.
+Motor Geometry measures oromotor control and consists of several modules such as commissure angle deviation, commissure rotation, and curvature metrics.
 
 ## Praat analysis
 Praat analysis compares the movement of the mouth to what the mouth is doing. For example: VOT, pitch (F0), phonation, and vowel analysis (F1, F2).
@@ -38,7 +38,7 @@ Praat analysis compares the movement of the mouth to what the mouth is doing. Fo
 
 ## Acknowledgements
 
- - Joshua Woodhouse, Univeristy of York
+ - Joshua Woodhouse, University of York
 
 
 
@@ -48,7 +48,7 @@ I have never written an API reference before so please email me using the author
 #### Installing OAS
 
 ```http
-  pip install https://github.com/Harry-S-W/OAS.git
+  pip install https://github.com/Harry-S-W/MOSAIC.git
 ```
 
 #### Using OAS
@@ -66,11 +66,11 @@ OAS (no project) >
 The prompt is dynamic and will change based on where you are within an OAS project and it is stateful. For example
 
 ```http
-OAS (no project) > add project "project path" "project name"
+MOSAIC (no project) > add project "project path" "project name"
 
 Project "project name" created at "project path"
 
-OAS project name >
+MOSAIC project name >
 ```
 
 This pattern is followed when accessing participant and trial directories as well.
