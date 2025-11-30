@@ -115,6 +115,10 @@ def quadratic_curve_col_unc():
 
     return quadratic_curve_uncertainty_cols
 
+"""
+BELOW IS THE CSV STRUCTURE FOR THE CORE MEASUREMENTS OF OAS
+"""
+
 WIDE_CSV_STRUCTURE = (
     ["frame", "timestamp", "pose_correction", "x_anchor", "x_unc", "y_anchor", "y_unc", # int, seconds, bool, px, px, px, px
     "pose_Rx", "pose_Ry", "pose_Rz"] # rad, rad, rad
@@ -168,4 +172,27 @@ WIDE_CSV_STRUCTURE = (
     + ["BIO_I_Q1_unc", "BIO_I_Q2_unc", "BIO_I_Q3_unc", "BIO_I_Q4_unc", "BIO_I_total_unc"]  # px
 
 )
+
+"""
+BELOW IS THE CSV STRUCTURE FOR THE COMPLEX TEMPORAL MEASUREMENTS
+"""
+
+TEMPORAL_CSV_STRUCTURE = (
+    # velocity
+    ["CURVE_OUR_VELO", "CURVE_OUL_VELO", "CURVE_OLR_VELO", "CURVE_OLL_VELO", "CURVE_IUR_VELO", "CURVE_IUL_VELO", "CURVE_ILR_VELO", "CURVE_ILL_VELO"]
+    +[f"X_{i}_VELO" for i in range(48, 68)]
+    +[f"Y_{i}_VELO" for i in range(48, 68)]
+
+    # acceleration
+    +["CURVE_OUR_ACC", "CURVE_OUL_ACC", "CURVE_OLR_ACC", "CURVE_OLL_ACC", "CURVE_IUR_ACC", "CURVE_IUL_ACC", "CURVE_ILR_ACC", "CURVE_ILL_ACC"]
+    + [f"X_{i}_ACC" for i in range(48, 68)]
+    + [f"Y_{i}_ACC" for i in range(48, 68)]
+
+    # jerk
+    + ["CURVE_OUR_JERK", "CURVE_OUL_JERK", "CURVE_OLR_JERK", "CURVE_OLL_JERK", "CURVE_IUR_JERK", "CURVE_IUL_JERK", "CURVE_ILR_JERK", "CURVE_ILL_JERK"]
+    + [f"X_{i}_JERK" for i in range(48, 68)]
+    + [f"Y_{i})JERK" for i in range(48, 68)]
+
+)
+
 
