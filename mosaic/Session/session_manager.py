@@ -121,7 +121,7 @@ class SessionManagement:
 
         projectPath = os.path.abspath(projectPath)
 
-        if os.path.exists(os.path.join(projectPath, (os.path.basename(projectPath)+".oasproj"))):
+        if os.path.exists(os.path.join(projectPath, (os.path.basename(projectPath)+".mosaicproj"))):
 
             session = self._read_session()
             session["currentProject"] = projectPath
@@ -133,7 +133,7 @@ class SessionManagement:
             return session
 
         else:
-            raise FileNotFoundError(f"Not a valid MOSAIC Project Folder. Can not find {os.path.join(projectPath, (os.path.basename(projectPath)+".oasproj"))}")
+            raise FileNotFoundError(f"Not a valid MOSAIC Project Folder. Can not find {os.path.join(projectPath, (os.path.basename(projectPath)+".mosaicproj"))}")
 
     def set_current_participant(self, participantId: str) -> Dict[str, Any]:
         """

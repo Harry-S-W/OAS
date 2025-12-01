@@ -138,7 +138,7 @@ class OASShell:
 
                     # Nowe we put them in that project
 
-                    self.session.set_current_project(os.path.join(path, name))
+                    #self.session.set_current_project(os.path.join(path, name))
 
                 elif subcmd == "participant":
 

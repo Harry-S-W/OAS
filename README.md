@@ -38,7 +38,7 @@ Praat analysis compares the movement of the mouth to what the mouth is doing. Fo
 
 ## Acknowledgements
 
- - Joshua Woodhouse, University of York - For contributions to the anchor/centering logic and uncertainty propagation.
+ - Joshua Woodhouse, University of York - For contributions to the anchor/centering logic, uncertainty propagation, and curvature.
 
 
 
