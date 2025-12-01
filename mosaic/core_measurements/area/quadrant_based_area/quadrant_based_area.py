@@ -21,7 +21,7 @@ class QuadrantArea:
         elif isinstance(src, pd.DataFrame):
             self.landmarks = src
         else:
-            raise TypeError("src must be a CSV path or a pandas DataFrame")
+            raise TypeError("landmarks must be a CSV path or a pandas DataFrame")
 
     @staticmethod
     def _cross(a, b):
@@ -127,7 +127,7 @@ class QuadraticArea:
         elif isinstance(src, pd.DataFrame):
             self.landmarks = src
         else:
-            raise TypeError("src must be a CSV path or a pandas DataFrame")
+            raise TypeError("landmarks must be a CSV path or a pandas DataFrame")
 
     @staticmethod
     def _cross(a, b):

@@ -15,7 +15,7 @@ class AngleUncertaintyCalculator:
         elif isinstance(src, pd.DataFrame):
             self.df = src
         else:
-            raise TypeError("src must be a CSV path or a pandas DataFrame")
+            raise TypeError("landmarks must be a CSV path or a pandas DataFrame")
 
     @staticmethod
     def _calc_row_sigma_theta(row: pd.Series, pairs: Sequence[tuple[str, str]]):

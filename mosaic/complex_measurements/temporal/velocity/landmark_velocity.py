@@ -12,7 +12,7 @@ class LandmarkVelocity:
         elif isinstance(src, pd.DataFrame):
             self.landmarks = src
         else:
-            raise TypeError("src must be a CSV path or a pandas DataFrame")
+            raise TypeError("landmarks must be a CSV path or a pandas DataFrame")
 
     @staticmethod
     def _getting_data(src, row: int) -> dict | TypeError:
@@ -35,7 +35,7 @@ class LandmarkVelocity:
 
         return data
 
-    def velocity(self, row: int) -> dict | TypeError:
+    def landmark_velocity(self, row: int) -> dict | TypeError:
         """
         in this function we get the velocity by comparing the current frame/row to the frame/row that came before it
 

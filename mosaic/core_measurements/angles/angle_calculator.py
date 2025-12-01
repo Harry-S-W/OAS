@@ -15,7 +15,7 @@ class AngleCalculator:
         elif isinstance(src, pd.DataFrame):
             self.landmarks = src
         else:
-            raise TypeError("src must be a CSV path or a pandas DataFrame")
+            raise TypeError("landmarks must be a CSV path or a pandas DataFrame")
 
     @staticmethod
     def _calc_row_angles(row: pd.Series, pairs: Sequence[tuple[str, str]]):

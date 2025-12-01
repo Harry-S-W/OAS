@@ -163,13 +163,13 @@ WIDE_CSV_STRUCTURE = (
     #
     # BIO BASED AREA
 
-    + ["BIO_O_Q1", "BIO_O_Q2", "BIO_O_Q3", "BIO_O_Q4", "BIO_O_total"]  # Outer area (entire mouth but based on outer landmarks/curves) - px
-    + ["BIO_I_Q1", "BIO_I_Q2", "BIO_I_Q3", "BIO_I_Q4", "BIO_I_total"]  # Inner area (Based on inner landmarks/curves so sort of the open area of the mouth) - px
+    + ["BIO_O_UR", "BIO_O_UL", "BIO_O_LR", "BIO_O_LL", "BIO_O_total"]  # Outer area (entire mouth but based on outer landmarks/curves) - px
+    + ["BIO_I_UR", "BIO_I_UL", "BIO_I_LR", "BIO_I_LL", "BIO_I_total"]  # Inner area (Based on inner landmarks/curves so sort of the open area of the mouth) - px
 
     # BIO BASED  AREA UNCERTAINTY
 
-    + ["BIO_O_Q1_unc", "BIO_O_Q2_unc", "BIO_O_Q3_unc", "BIO_O_Q4_unc", "BIO_O_total_unc"]  # px
-    + ["BIO_I_Q1_unc", "BIO_I_Q2_unc", "BIO_I_Q3_unc", "BIO_I_Q4_unc", "BIO_I_total_unc"]  # px
+    + ["BIO_O_UR_unc", "BIO_O_UL_unc", "BIO_O_LL_unc", "BIO_O_LR_unc", "BIO_O_total_unc"]  # px
+    + ["BIO_I_UR_unc", "BIO_I_UL_unc", "BIO_I_LL_unc", "BIO_I_LR_unc", "BIO_I_total_unc"]  # px
 
 )
 

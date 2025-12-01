@@ -28,7 +28,7 @@ class BioArea:
         elif isinstance(src, pd.DataFrame):
             self.landmarks = src
         else:
-            raise TypeError("src must be a CSV path or a pandas DataFrame")
+            raise TypeError("landmarks must be a CSV path or a pandas DataFrame")
 
 
     def _lm(self, row, idx):

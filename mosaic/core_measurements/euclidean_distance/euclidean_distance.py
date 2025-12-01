@@ -26,7 +26,7 @@ class EuclideanDistance:
         elif isinstance(src, pd.DataFrame):
             self.landmarks = src
         else:
-            raise TypeError("src must be a CSV path or a pandas DataFrame")
+            raise TypeError("landmarks must be a CSV path or a pandas DataFrame")
         if not isinstance(filtering, bool):
             raise TypeError("filtering must be bool")
         self.filtering = filtering
