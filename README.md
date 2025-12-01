@@ -1,7 +1,7 @@
 
 # Motor-Oral Speech Analysis & Integrated Computation (MOSAIC)
 
-Motor-Oral Speech Analysis & Integrated Computation (MOSAIC) is a mathematical system which tracks mouth and jaw movement and correlates those measurements to a [parselmouth/praat](https://parselmouth.readthedocs.io/en/stable/#) analysis. OAS has three measurement "units": core measurements, complex measurements, and praat based measurements. 
+Motor-Oral Speech Analysis & Integrated Computation (MOSAIC) is a mathematical system which tracks mouth and jaw movement and correlates those measurements to a [parselmouth/praat](https://parselmouth.readthedocs.io/en/stable/#) analysis. MOSAIC has three measurement "units": core measurements, complex measurements, and praat based measurements. 
 
 ## Core measurements
 Core measurements serve as the backbone for the higher-level measurements used in facial tracking. It follows a simple pipiline.
@@ -38,7 +38,7 @@ Praat analysis compares the movement of the mouth to what the mouth is doing. Fo
 
 ## Acknowledgements
 
- - Joshua Woodhouse, University of York
+ - Joshua Woodhouse, University of York - For contributions to the anchor/centering logic and uncertainty propagation.
 
 
 
@@ -52,18 +52,19 @@ I have never written an API reference before so please email me using the author
 ```
 
 #### Using OAS
-OAS Uses a REPL (under heavy development) so it is ran in your terminal
+MOSAIC Uses a REPL (under heavy development) to make the CLI as intuitive as possible
+
+To access the shell:
+```http
+  > mosaic
+```
+You are now in the MOSAIC environment and your terminal will look like the following, assuming you are not in any project, participant, or trial directory.
 
 ```http
-  > oas
-```
-You are now in the OAS environment and your terminal will look like the following, assuming you are not in any project, participant, or trial directory.
-
-```http
-OAS (no project) >
+MOSAIC (no project) >
 ```
 
-The prompt is dynamic and will change based on where you are within an OAS project and it is stateful. For example
+The prompt is dynamic and will change based on where you are within an MOSAIC project and it is stateful. For example
 
 ```http
 MOSAIC (no project) > add project "project path" "project name"
