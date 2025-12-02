@@ -52,6 +52,40 @@ class CurveVelocity:
 
         return data
 
+    def _get_cubic_curve_gradient(self, curve, t):
+        """
+        I think the best way of getting the "velocity" of a coeff is to compare the gradients of the 4 control points (P0-P3).
+        that gives me the how the coeff really changes over time.
+
+        this func is for cubic curves
+        """
+        slope = []
+        for coeff in curve:
+
+            # differential of cubic coeff function:
+
+            X_t = (3 * coeff[0] * (t ** 2)) + (2 * coeff[2] * t) + (coeff[4] * t)
+            Y_t = (3 * coeff[1] * (t ** 2)) + (2 * coeff[3] * t) + (coeff[5] * t)
+
+            slope.append(Y_t / X_t)
+        return slope
+        pass
+
+    def _get_quadratic_curve_gradient(self, curve, t):
+        # coeff will be a series of 4 lists which contain the x, y coeffs
+        slope = []
+        for coeff in curve:
+
+            # differential of quadratic coeff function - will code later:
+
+            X_t = 1
+            Y_t = 1
+
+            slope.append(Y_t / X_t)
+        return slope
+
+
+
 
     def curve_area_calculation(self, curve_data):
         """

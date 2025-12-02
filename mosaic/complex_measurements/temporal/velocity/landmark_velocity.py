@@ -4,6 +4,7 @@ this script just measures the velocity of landmarks tracking the mouth
 from pathlib import Path
 import pandas as pd
 from mosaic.config import LANDMARK_PAIRS
+import math
 
 class LandmarkVelocity:
     def __init__(self, src: str | Path | pd.DataFrame):
@@ -31,11 +32,12 @@ class LandmarkVelocity:
         for X_, Y_ in LANDMARK_PAIRS:
             x = df_row[X_]
             y = df_row[Y_]
-            data.update({X_: x, Y_: y})
+            time = df_row["timestamp"]
+            data.update({"time": time, X_: x, Y_: y})
 
         return data
 
-    def landmark_velocity(self, row: int) -> dict | TypeError:
+    def landmark_velocity(self, row: int) -> list | TypeError:
         """
         in this function we get the velocity by comparing the current frame/row to the frame/row that came before it
 
@@ -56,21 +58,27 @@ class LandmarkVelocity:
 
         # I think it is best to return a dict of velocity like {x_48: 0.2, y_48: 0.73.....} sort of thing
 
-        velocity = {}
+        velocity_list = []
 
         for X_, Y_ in LANDMARK_PAIRS:
             curr_x = current_row[X_]
             curr_y = current_row[Y_]
+            curr_time = current_row["time"]
 
             prev_x = previous_row[X_]
             prev_y = previous_row[Y_]
+            prev_time = previous_row["time"]
 
-            velocity_x = curr_x - prev_x
-            velocity_y = curr_y - prev_y
+            #displacement = curr_x - prev_x
+            #displacement = curr_y - prev_y
+            displacement = math.sqrt(((curr_x-prev_x)**2)+((curr_y-prev_y)**2))
+            elapsed_time = curr_time - prev_time
 
-            velocity.update({X_: velocity_x, Y_: velocity_y})
+            velocity = displacement / elapsed_time
 
-        return velocity
+            velocity_list.append(velocity)
+
+        return velocity_list
 
 
 
